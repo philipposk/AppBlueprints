@@ -1,24 +1,30 @@
+"use client";
+
+import { useMemo } from "react";
 import { ChatPanel } from "@/components/chat/chat-panel";
 import { TemplatePanel } from "@/components/template/template-panel";
-import { VibeMeter } from "@/components/vibe/vibe-meter";
 import { ClarificationPanel } from "@/components/clarifications/clarification-panel";
-import { MoodBoard } from "@/components/mood/mood-board";
 import { CursorExportPanel } from "@/components/cursor/cursor-export";
+import { useAppStore } from "@/state/app-store";
 
 export default function Home() {
+  const template = useAppStore((state) => state.template);
+  
+  const appName = useMemo(() => {
+    const coreIdeaSection = template.instructions.find((section) => section.id === "core-idea");
+    const field = coreIdeaSection?.fields.find((entry) => entry.id === "core-name");
+    return field?.value.trim() || null;
+  }, [template]);
+
   return (
     <main className="relative min-h-dvh overflow-hidden pb-16">
       <BackgroundGlow />
       <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col gap-8 px-6 pt-16 md:px-8 lg:px-12">
-        <Hero />
+        <Hero appName={appName} />
         <div className="grid gap-8 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
           <div className="flex flex-col gap-6">
             <ChatPanel />
-            <div className="grid gap-4 lg:grid-cols-2">
-              <VibeMeter />
-              <ClarificationPanel />
-            </div>
-            <MoodBoard />
+            <ClarificationPanel />
           </div>
           <div className="flex h-full flex-col gap-6">
             <TemplatePanel />
@@ -30,20 +36,33 @@ export default function Home() {
   );
 }
 
-const Hero = () => (
-  <section className="rounded-3xl border border-white/10 bg-gradient-to-br from-white/10 via-white/5 to-transparent px-8 py-10 shadow-xl shadow-black/40 backdrop-blur">
-    <p className="text-xs uppercase tracking-[0.4em] text-white/60">AppMaker · Vibecoding lab</p>
-    <h1 className="mt-4 max-w-3xl text-4xl font-semibold leading-tight text-white sm:text-5xl">
-      Chat or speak your next app idea. AppMaker fills{" "}
-      <span className="bg-clip-text text-transparent" style={{ backgroundImage: "var(--glow)" }}>
-        Instructions, Cursor Rules, and TODOs
-      </span>{" "}
-      automatically.
-    </h1>
-    <p className="mt-4 max-w-2xl text-base text-white/70">
-      Groq powers the brainstorming. Mood boards, vibe meters, and clarifications keep every build
-      aligned with the energy you want—ready for Cursor exports.
-    </p>
+type HeroProps = {
+  appName: string | null;
+};
+
+const Hero = ({ appName }: HeroProps) => (
+  <section className="rounded-2xl border border-white/10 bg-gradient-to-br from-white/10 via-white/5 to-transparent px-6 py-4 shadow-lg shadow-black/40 backdrop-blur">
+    <div className="flex items-center justify-between gap-4">
+      <div className="flex items-center gap-3">
+        <h1 className="text-2xl font-semibold text-white sm:text-3xl">
+          AppBlueprints
+        </h1>
+        {appName && (
+          <>
+            <span className="text-white/40">·</span>
+            <h2 className="text-xl font-medium text-white/90 sm:text-2xl">
+              {appName}
+            </h2>
+          </>
+        )}
+      </div>
+      {appName && (
+        <div className="hidden items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-medium text-white/70 sm:flex">
+          <span className="h-2 w-2 rounded-full bg-emerald-400"></span>
+          Project active
+        </div>
+      )}
+    </div>
   </section>
 );
 

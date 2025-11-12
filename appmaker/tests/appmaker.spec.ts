@@ -11,7 +11,7 @@ test("sends idea, receives stubbed response, and triggers Cursor export stub", a
   await textarea.click();
   await page.keyboard.insertText("I want a mood-driven journaling companion that adapts to my playlists.");
 
-  await page.getByRole("button", { name: "Send to AppMaker" }).click();
+  await page.getByRole("button", { name: "Send to AppBlueprints" }).click();
 
   await expect(
     page.getByText("Here’s a quick pass based on the stub generator.", { exact: false }),

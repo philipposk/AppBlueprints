@@ -50,8 +50,8 @@ export const buildClarifications = (template: TemplateSet): ClarificationItem[] 
             sectionId: section.title,
             fieldId: field.id,
             question: field.prompt,
-            example: field.example,
-            recommendation: field.recommendation,
+            examples: field.examples,
+            recommendations: field.recommendations,
           });
         }
       }),
@@ -79,11 +79,18 @@ export const serializeTemplateForPrompt = (template: TemplateSet) => {
   Object.entries(template).forEach(([documentKey, sections]) => {
     lines.push(`# ${documentKey}`);
     (sections as TemplateSection[]).forEach((section) => {
-      lines.push(`## ${section.title} (${section.id})`);
+      lines.push(`## ${section.title} (section_id: "${section.id}")`);
       section.fields.forEach((field) => {
-        lines.push(
-          `- [${field.id}] prompt: ${field.prompt}\n  example: ${field.example}\n  recommendation: ${field.recommendation}\n  current_value: ${field.value || "(empty)"}`,
-        );
+        // Only include prompt and current value - examples/recommendations are for UI only
+        // This significantly reduces token usage while preserving all necessary information
+        // Make it clear which fields need filling
+        const isEmpty = !field.value.trim();
+        const value = field.value.trim() || "[EMPTY - FILL THIS]";
+        const status = isEmpty ? "⚠️" : "✓";
+        lines.push(`${status} [${field.id}] ${field.prompt}`);
+        if (!isEmpty) {
+          lines.push(`   Current: ${value}`);
+        }
       });
     });
   });
@@ -98,12 +105,10 @@ const sectionToMarkdown = (section: TemplateSection) => {
     lines.push(section.description, "");
   }
   section.fields.forEach((field) => {
+    // Only include the prompt and answer - examples/recommendations are for UI guidance only
+    const answer = field.value.trim() || "_Pending clarification_";
     lines.push(`- **${field.prompt}**`);
-    lines.push(`  - Example: ${field.example}`);
-    lines.push(`  - Recommendation: ${field.recommendation}`);
-    lines.push(
-      `  - Answer: ${field.value.trim() ? field.value.trim() : "_Pending clarification_"}\n`,
-    );
+    lines.push(`  ${answer}\n`);
   });
   return lines.join("\n");
 };

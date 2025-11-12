@@ -1,6 +1,6 @@
-## AppMaker · Vibecoding Assistant
+## AppBlueprints · Development Blueprint Generator
 
-AppMaker is a Next.js application that turns raw app ideas into scoped Instructions, Cursor Rules, and TODO plans. It supports Groq-powered chat, voice transcription, mood-board palette extraction, and Cursor export stubs so you can bootstrap new projects directly from a vibe session.
+AppBlueprints is a Next.js application that transforms app ideas into structured development blueprints with AI-powered Instructions, Cursor Rules, and actionable TODO lists. It supports Groq-powered chat, voice transcription, mood-board palette extraction, and Cursor export stubs so you can bootstrap new projects directly from a vibe session.
 
 ### Key Features
 
@@ -29,10 +29,10 @@ cp .env.example .env.local
 
 | Variable | Description |
 | --- | --- |
-| `GROQ_API_KEY` | Required for live chat + transcription. Leave blank and set `APPMAKER_USE_GROQ_STUB=true` for offline development. |
-| `CURSOR_API_TOKEN`, `CURSOR_WORKSPACE_ID` | Optional; when provided the export route logs payloads ready for Cursor’s future API. |
+| `GROQ_API_KEY` | Required for live chat + transcription. Leave blank and set `APPBLUEPRINTS_USE_GROQ_STUB=true` for offline development. |
+| `CURSOR_API_TOKEN`, `CURSOR_WORKSPACE_ID` | Optional; when provided the export route logs payloads ready for Cursor's future API. |
 | `CURSOR_API_BASE_URL` | Override Cursor endpoint if needed (defaults to `https://api.cursor.run`). |
-| `APPMAKER_USE_GROQ_STUB` | Set to `true` to bypass Groq calls and use local stub responses (used by Playwright tests). |
+| `APPBLUEPRINTS_USE_GROQ_STUB` | Set to `true` to bypass Groq calls and use local stub responses (used by Playwright tests). |
 
 ### 3. Run the dev server
 
@@ -65,4 +65,4 @@ Traces are captured on the first retry; reports are stored in `playwright-report
 
 - Conventional commits recommended (e.g., `feat: add Groq stub mode`).
 - Run `pnpm lint` before submitting changes.
-- Set `APPMAKER_USE_GROQ_STUB=true` when developing without credentials; remember to revert for production.
+- Set `APPBLUEPRINTS_USE_GROQ_STUB=true` when developing without credentials; remember to revert for production.

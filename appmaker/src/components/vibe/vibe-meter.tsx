@@ -43,7 +43,10 @@ export const VibeMeter = () => {
         <span>Electric</span>
       </div>
       <p className="mt-3 text-xs text-white/55">
-        Tune how expressive AppMaker should be when it asks clarifying questions and pitches ideas.
+        Controls the tone and energy of AppBlueprints' responses: lower values (0-30) = calm and reflective, 
+        mid values (30-60) = balanced and practical, higher values (60-85) = energetic and motivating, 
+        maximum (85-100) = bold and high-energy with vivid imagery. This affects how AppBlueprints communicates 
+        when asking questions and filling your template.
       </p>
     </section>
   );

@@ -1,18 +1,25 @@
 export type Role = "user" | "assistant" | "system";
 
+export type MessageImage = {
+  url: string;
+  type: string;
+  name?: string;
+};
+
 export type Message = {
   id: string;
   role: Role;
   content: string;
   createdAt: string;
   source?: "text" | "voice" | "system";
+  images?: MessageImage[];
 };
 
 export type TemplateField = {
   id: string;
   prompt: string;
-  example: string;
-  recommendation: string;
+  examples: string[];
+  recommendations: string[];
   value: string;
 };
 
@@ -37,8 +44,8 @@ export type ClarificationItem = {
   sectionId: string;
   document: "instructions" | "cursorRules" | "todo";
   question: string;
-  example: string;
-  recommendation: string;
+  examples: string[];
+  recommendations: string[];
 };
 
 export type MoodBoardAsset = {

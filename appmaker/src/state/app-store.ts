@@ -8,6 +8,7 @@ import {
   type TemplateSet,
 } from "@/lib/types";
 import { createBlankTemplateSet } from "@/lib/template-data";
+import { buildClarifications } from "@/lib/template-helpers";
 import { nowIso } from "@/lib/utils";
 
 type AppStore = {
@@ -21,6 +22,12 @@ type AppStore = {
   addMessage: (message: Omit<Message, "id" | "createdAt">) => void;
   appendMessages: (messages: Omit<Message, "id" | "createdAt">[]) => void;
   replaceTemplate: (template: TemplateSet) => void;
+  updateTemplateField: (
+    document: keyof TemplateSet,
+    sectionId: string,
+    fieldId: string,
+    value: string,
+  ) => void;
   setClarifications: (clarifications: ClarificationItem[]) => void;
   setVibeScore: (value: number) => void;
   setPaletteSummary: (summary: PaletteSummary | null) => void;
@@ -55,6 +62,19 @@ export const useAppStore = create<AppStore>((set) => ({
     set(() => ({
       template: template ?? createBlankTemplateSet(),
     })),
+  updateTemplateField: (document, sectionId, fieldId, value) =>
+    set((state) => {
+      const nextTemplate = structuredClone(state.template);
+      const section = nextTemplate[document].find((s) => s.id === sectionId);
+      if (section) {
+        const field = section.fields.find((f) => f.id === fieldId);
+        if (field) {
+          field.value = value;
+        }
+      }
+      const clarifications = buildClarifications(nextTemplate);
+      return { template: nextTemplate, clarifications };
+    }),
   setClarifications: (clarifications) =>
     set(() => ({
       clarifications,

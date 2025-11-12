@@ -98,7 +98,7 @@ export const MoodBoard = () => {
       <header className="mb-4">
         <p className="text-[10px] uppercase tracking-[0.3em] text-white/60">Mood board</p>
         <h3 className="text-lg font-semibold text-white">
-          Add visuals to steer AppMaker’s clarifying questions
+          Add visuals to steer AppBlueprints' clarifying questions
         </h3>
       </header>
       <label
@@ -123,7 +123,7 @@ export const MoodBoard = () => {
           Drop PNG, JPG, or WEBP (max 6)
         </p>
         <p className="mt-1 text-xs text-white/60">
-          AppMaker samples colors + keywords to tune the vibe meter and prompts.
+          AppBlueprints samples colors + keywords to tune the vibe meter and prompts.
         </p>
       </label>
 
@@ -175,10 +175,10 @@ const describePalette = (colors: string[]) => {
   if (colors.length === 0) return "Upload images to craft the vibe.";
   const unique = Array.from(new Set(colors.map((color) => color.toUpperCase())));
   if (unique.length === 1) {
-    return `Single-tone focus: ${unique[0]}. AppMaker will keep prompts tight and minimal.`;
+    return `Single-tone focus: ${unique[0]}. AppBlueprints will keep prompts tight and minimal.`;
   }
   if (unique.length === 2) {
     return `Dual-tone palette (${unique.join(" & ")}). Expect balanced clarifications and matching UI notes.`;
   }
-  return `Eclectic mix (${unique.slice(0, 3).join(", ")}). AppMaker will go bolder with ideas and tone.`;
+  return `Eclectic mix (${unique.slice(0, 3).join(", ")}). AppBlueprints will go bolder with ideas and tone.`;
 };

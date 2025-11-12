@@ -15,9 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AppMaker · Vibecoding Assistant",
+  title: "AppBlueprints · Development Blueprint Generator",
   description:
-    "AppMaker turns raw app ideas into scoped plans using Groq-powered vibes, voice notes, and Cursor-ready templates.",
+    "Transform app ideas into structured development blueprints with AI-powered Instructions, Cursor Rules, and actionable TODO lists.",
 };
 
 export default function RootLayout({

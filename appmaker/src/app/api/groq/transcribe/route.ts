@@ -23,9 +23,9 @@ export async function POST(request: Request) {
     const formData = await request.formData();
     const file = formData.get("audio");
 
-    if (process.env.APPMAKER_USE_GROQ_STUB === "true") {
+    if (process.env.APPBLUEPRINTS_USE_GROQ_STUB === "true") {
       return NextResponse.json({
-        text: "This is a stub transcription. Swap APPMAKER_USE_GROQ_STUB to false to hit Groq.",
+        text: "This is a stub transcription. Swap APPBLUEPRINTS_USE_GROQ_STUB to false to hit Groq.",
       });
     }
 

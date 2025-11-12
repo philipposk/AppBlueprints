@@ -1,39 +1,28 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 
 import { useAppStore } from "@/state/app-store";
+import type { MessageImage } from "@/lib/types";
 
 export const useChatController = () => {
-  const {
-    addMessage,
-    setProcessing,
-    isProcessing,
-    appendMessages,
-    replaceTemplate,
-    setClarifications,
-    vibeScore,
-    paletteSummary,
-    moodBoard,
-    template,
-  } = useAppStore((state) => ({
-    addMessage: state.addMessage,
-    setProcessing: state.setProcessing,
-    appendMessages: state.appendMessages,
-    replaceTemplate: state.replaceTemplate,
-    setClarifications: state.setClarifications,
-    vibeScore: state.vibeScore,
-    paletteSummary: state.paletteSummary,
-    moodBoard: state.moodBoard,
-    template: state.template,
-    isProcessing: state.isProcessing,
-  }));
+  const addMessage = useAppStore((state) => state.addMessage);
+  const setProcessing = useAppStore((state) => state.setProcessing);
+  const appendMessages = useAppStore((state) => state.appendMessages);
+  const replaceTemplate = useAppStore((state) => state.replaceTemplate);
+  const setClarifications = useAppStore((state) => state.setClarifications);
+  const vibeScore = useAppStore((state) => state.vibeScore);
+  const paletteSummary = useAppStore((state) => state.paletteSummary);
+  const template = useAppStore((state) => state.template);
+  const isProcessing = useAppStore((state) => state.isProcessing);
+  const requestInFlightRef = useRef(false);
 
   const sendUserMessage = useCallback(
-    async (content: string, source: "text" | "voice" = "text") => {
-      if (!content.trim()) return;
+    async (content: string, source: "text" | "voice" = "text", images?: MessageImage[]) => {
+      if ((!content.trim() && (!images || images.length === 0)) || requestInFlightRef.current) return;
 
       const trimmed = content.trim();
+      requestInFlightRef.current = true;
 
       const existingMessages = useAppStore.getState().messages;
 
@@ -41,12 +30,14 @@ export const useChatController = () => {
         role: "user",
         content: trimmed,
         source,
+        images,
       });
 
       setProcessing(true);
 
       try {
-        const messagesPayload = [...existingMessages, { role: "user", content: trimmed }].filter(
+        const lastUserMessage = { role: "user" as const, content: trimmed, images };
+        const messagesPayload = [...existingMessages, lastUserMessage].filter(
           (message) => message.role === "user" || message.role === "assistant",
         );
 
@@ -56,43 +47,101 @@ export const useChatController = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            messages: messagesPayload.map(({ role, content }) => ({
+            messages: messagesPayload.map(({ role, content, images: msgImages }) => ({
               role,
               content,
+              images: msgImages,
             })),
             template,
             vibeScore,
             paletteSummary,
-            moodBoard: moodBoard.map(({ id, averageColor, name }) => ({
-              id,
-              averageColor,
-              name,
-            })),
           }),
         });
 
         if (!response.ok) {
           const errorBody = await response.json().catch(() => ({}));
-          throw new Error(errorBody?.details || "Groq request failed.");
+          const errorMessage = errorBody?.details || errorBody?.error || "Groq request failed.";
+          
+          // Provide more helpful error messages
+          if (response.status === 413 || errorMessage.toLowerCase().includes("request too large")) {
+            throw new Error(
+              "Your request is too large. Try shortening your message or clear some template fields to reduce context size."
+            );
+          }
+          
+          throw new Error(errorMessage);
         }
 
         const data = await response.json();
 
+        // Only add assistant message if we got a valid response
+        const assistantMessage = data.assistantMessage || data.assistant_message;
+        
+        // Log the response for debugging
+        console.log("Groq response received:", {
+          hasTemplate: !!data.template,
+          hasClarifications: Array.isArray(data.clarifications),
+          clarificationsCount: Array.isArray(data.clarifications) ? data.clarifications.length : 0,
+          assistantMessage: assistantMessage?.substring(0, 100),
+        });
+        
         if (data.template) {
+          // Verify template structure before updating
+          const templateKeys = Object.keys(data.template);
+          console.log("Updating template with documents:", templateKeys);
+          
+          // Count filled fields before update
+          const currentTemplate = useAppStore.getState().template;
+          let filledBefore = 0;
+          Object.values(currentTemplate).forEach((sections) => {
+            sections.forEach((section) => {
+              section.fields.forEach((field) => {
+                if (field.value.trim()) filledBefore++;
+              });
+            });
+          });
+          
           replaceTemplate(data.template);
+          
+          // Count filled fields after update
+          const newTemplate = useAppStore.getState().template;
+          let filledAfter = 0;
+          Object.values(newTemplate).forEach((sections) => {
+            sections.forEach((section) => {
+              section.fields.forEach((field) => {
+                if (field.value.trim()) filledAfter++;
+              });
+            });
+          });
+          
+          console.log(`Template updated: ${filledBefore} → ${filledAfter} filled fields`);
+        } else {
+          console.warn("No template in response:", data);
         }
+        
         if (Array.isArray(data.clarifications)) {
           setClarifications(data.clarifications);
+          console.log("Clarifications updated:", data.clarifications.length);
         }
 
-        appendMessages([
-          {
-            role: "assistant",
-            content:
-              data.assistantMessage ??
-              "I processed your idea. Let me know if you want to refine anything further!",
-          },
-        ]);
+        // Only append message if we have content and it's not a duplicate
+        if (assistantMessage) {
+          const currentMessages = useAppStore.getState().messages;
+          const lastMessage = currentMessages[currentMessages.length - 1];
+          // Avoid duplicate messages
+          if (lastMessage?.role !== "assistant" || lastMessage?.content !== assistantMessage) {
+            appendMessages([
+              {
+                role: "assistant",
+                content: assistantMessage,
+              },
+            ]);
+          } else {
+            console.warn("Skipping duplicate assistant message");
+          }
+        } else {
+          console.warn("No assistant message in response");
+        }
       } catch (error) {
         console.error("sendUserMessage error", error);
         appendMessages([
@@ -106,6 +155,7 @@ export const useChatController = () => {
         ]);
       } finally {
         setProcessing(false);
+        requestInFlightRef.current = false;
       }
     },
     [
@@ -115,7 +165,6 @@ export const useChatController = () => {
       template,
       vibeScore,
       paletteSummary,
-      moodBoard,
       replaceTemplate,
       setClarifications,
     ],

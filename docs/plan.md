@@ -1,9 +1,9 @@
-## AppMaker Project Plan
+## AppBlueprints Project Plan
 
 ### Vision
-- **Name:** AppMaker
+- **Name:** AppBlueprints
 - **Core Goal:** Give creators a conversational (text or voice) assistant that converts an app idea into a fully scoped plan plus starter scaffolding using our standard Instructions, Cursor Rules, and TODO template.
-- **Signature Experience:** Share an idea and supporting vibes (voice note, mood board). AppMaker replies with tailored questions, auto-fills the template, and flags any missing decisions to confirm with the user.
+- **Signature Experience:** Share an idea and supporting vibes (voice note, mood board). AppBlueprints replies with tailored questions, auto-fills the template, and flags any missing decisions to confirm with the user.
 
 ### Key Features
 - **Groq-powered dialog:** Real-time chat flow using Groq LLM for ideation, template synthesis, and clarification prompts.
