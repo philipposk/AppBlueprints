@@ -208,7 +208,11 @@ export async function POST(request: Request) {
     const recentMessages = messages.slice(-MAX_HISTORY_MESSAGES);
     
     // Format messages for Groq API - support images in user messages
-    const formatMessageForGroq = (msg: { role: string; content: string; images?: Array<{ url: string; type: string }> }) => {
+    const formatMessageForGroq = (msg: { role: string; content: string; images?: Array<{ url: string; type: string }> }): 
+      | { role: "user"; content: Array<{ type: "text"; text: string } | { type: "image_url"; image_url: { url: string } }> }
+      | { role: "user"; content: string }
+      | { role: "assistant"; content: string }
+      | { role: "system"; content: string } => {
       if (msg.role === "user" && msg.images && msg.images.length > 0) {
         // For messages with images, use content array format
         const contentParts: Array<{ type: "text"; text: string } | { type: "image_url"; image_url: { url: string } }> = [
@@ -221,12 +225,26 @@ export async function POST(request: Request) {
           });
         });
         return {
-          role: msg.role,
+          role: "user" as const,
           content: contentParts,
         };
       }
+      // Handle each role type explicitly
+      if (msg.role === "user") {
+        return {
+          role: "user" as const,
+          content: msg.content,
+        };
+      }
+      if (msg.role === "assistant") {
+        return {
+          role: "assistant" as const,
+          content: msg.content,
+        };
+      }
+      // Default to system (shouldn't happen, but TypeScript needs this)
       return {
-        role: msg.role,
+        role: "system" as const,
         content: msg.content,
       };
     };
