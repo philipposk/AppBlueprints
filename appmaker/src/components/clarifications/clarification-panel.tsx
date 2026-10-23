@@ -33,9 +33,9 @@ export const ClarificationPanel = () => {
             </span>
             <ClipboardCheck className="h-5 w-5 text-accent" />
           </div>
-          <h3 className="mt-2 text-lg font-semibold text-white">
+          <h2 className="mt-2 text-lg font-semibold text-white">
             Questions AppBlueprints still needs you to answer
-          </h3>
+          </h2>
         </div>
       </header>
       {clarifications.length === 0 ? (
