@@ -1,0 +1,7 @@
+# AppBlueprints
+
+> Transform app ideas into structured development blueprints with AI-powered Instructions, Cursor Rules, and actionable TODO lists.
+
+- [AppBlueprints · Development Blueprint Generator](https://appblueprints.6x7.gr/)
+- [Sitemap](https://appblueprints.6x7.gr/sitemap.xml)
+- Made by [6x7](https://6x7.gr/). [All 6x7 apps](https://portfolio.6x7.gr/)
